@@ -324,6 +324,59 @@ class SunLightSettings:
         msg = "Should not happen"
         raise ValueError(msg)
 
+    def color_temp_tanh(self, dt: datetime.datetime) -> int:
+        event, ts_event = self.sun.closest_event(dt)
+        dark = self.brightness_mode_time_dark.total_seconds()
+        light = self.brightness_mode_time_light.total_seconds()
+        x = dt.timestamp() - ts_event
+        if event == SUN_EVENT_SUNRISE:
+            if x < 0:
+                color_temp = scaled_tanh(
+                    dt.timestamp() - ts_event,
+                    x1=-dark,
+                    x2=0,
+                    y1=0.05,  # be at 5% of range at x1
+                    y2=0.99,  # be at 95% of range at x2
+                    y_min=self.sleep_color_temp,
+                    y_max=self.min_color_temp,
+                )
+            else:
+                color_temp = scaled_tanh(
+                    dt.timestamp() - ts_event,
+                    x1=0,
+                    x2=+light,
+                    y1=0.01,  # be at 5% of range at x1
+                    y2=0.95,  # be at 95% of range at x2
+                    y_min=self.min_color_temp,
+                    y_max=self.max_color_temp,
+                )
+        elif event == SUN_EVENT_SUNSET:
+            if x < 0:
+                color_temp = scaled_tanh(
+                    dt.timestamp() - ts_event,
+                    x1=-light,  # shifted timestamp for the start of sunset
+                    x2=0,  # shifted timestamp for the end of sunset
+                    y1=0.95,  # be at 95% of range at the start of sunset
+                    y2=0.01,  # be at 5% of range at the end of sunset
+                    y_min=self.min_color_temp,
+                    y_max=self.max_color_temp,
+                )
+            else:
+                color_temp = scaled_tanh(
+                    dt.timestamp() - ts_event,
+                    x1=0,  # shifted timestamp for the start of sunset
+                    x2=+dark,  # shifted timestamp for the end of sunset
+                    y1=0.99,  # be at 95% of range at the start of sunset
+                    y2=0.05,  # be at 5% of range at the end of sunset
+                    y_min=self.sleep_color_temp,
+                    y_max=self.min_color_temp,
+                )
+        if self.min_color_temp > self.sleep_color_temp:
+            min_color_temp = self.sleep_color_temp
+        else:
+            min_color_temp = self.min_color_temp
+        return clamp(color_temp, min_color_temp, self.max_color_temp)
+
     def brightness_and_color(
         self,
         dt: datetime.datetime,
@@ -353,10 +406,10 @@ class SunLightSettings:
                 self.sleep_rgb_color,
                 sun_position,
             )
-            color_temp_kelvin = self.color_temp_kelvin(sun_position)
+            color_temp_kelvin = self.color_temp_tanh(dt)
             force_rgb_color = True
         else:
-            color_temp_kelvin = self.color_temp_kelvin(sun_position)
+            color_temp_kelvin = self.color_temp_tanh(dt)
             rgb_color = color_temperature_to_rgb(color_temp_kelvin)
         # backwards compatibility for versions < 1.3.1 - see #403
         color_temp_mired: float = math.floor(1000000 / color_temp_kelvin)
