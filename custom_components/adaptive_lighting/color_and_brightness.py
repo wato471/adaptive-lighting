@@ -270,6 +270,8 @@ class SunLightSettings:
                 y_min=self.min_brightness,
                 y_max=self.max_brightness,
             )
+        else:
+            brightness = self.min_brightness
         return clamp(brightness, self.min_brightness, self.max_brightness)
 
     def _brightness_pct_linear(self, dt: datetime.datetime) -> float:
@@ -294,6 +296,8 @@ class SunLightSettings:
                 y1=self.max_brightness,
                 y2=self.min_brightness,
             )
+        else:
+            brightness = self.min_brightness
         return clamp(brightness, self.min_brightness, self.max_brightness)
 
     def brightness_pct(self, dt: datetime.datetime, is_sleep: bool) -> float | None:
@@ -371,11 +375,20 @@ class SunLightSettings:
                     y_min=self.sleep_color_temp,
                     y_max=self.min_color_temp,
                 )
+        else:
+            color_temp = self.min_color_temp
+
         if self.min_color_temp > self.sleep_color_temp:
             min_color_temp = self.sleep_color_temp
         else:
             min_color_temp = self.min_color_temp
-        return clamp(color_temp, min_color_temp, self.max_color_temp)
+
+        if self.max_color_temp < self.sleep_color_temp:
+            max_color_temp = self.sleep_color_temp
+        else:
+            max_color_temp = self.max_color_temp
+
+        return clamp_int(int(color_temp), min_color_temp, max_color_temp)
 
     def brightness_and_color(
         self,
@@ -564,7 +577,10 @@ def lerp(x: float, x1: float, x2: float, y1: float, y2: float) -> float:
     """Linearly interpolate between two values."""
     return y1 + (x - x1) * (y2 - y1) / (x2 - x1)
 
-
 def clamp(value: float, minimum: float, maximum: float) -> float:
+    """Clamp value between minimum and maximum."""
+    return max(minimum, min(value, maximum))
+
+def clamp_int(value: int, minimum: int, maximum: int) -> int:
     """Clamp value between minimum and maximum."""
     return max(minimum, min(value, maximum))
