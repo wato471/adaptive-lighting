@@ -257,7 +257,7 @@ class SunLightSettings:
         else:
             d = -1
         
-        gap = 0.05
+        gap = 0.03
         k = 1/(1-gap)
         t_dark = d * gap * k * abs(self.min_brightness - self.sleep_brightness)
         t_light = -1 * gap * k * abs(self.max_brightness - self.min_brightness)
@@ -383,7 +383,7 @@ class SunLightSettings:
         else:
             d = -1
         
-        gap = 0.05
+        gap = 0.09
         k = 1/(1-gap)
         t_dark = d * gap * k * abs(self.min_color_temp - self.sleep_color_temp)
         t_light = -1 * gap * k * abs(self.max_color_temp - self.min_color_temp)
