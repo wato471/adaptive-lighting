@@ -251,31 +251,35 @@ class SunLightSettings:
         dark = self.brightness_mode_time_dark.total_seconds()
         light = self.brightness_mode_time_light.total_seconds()
         x = dt.timestamp() - ts_event
+
         if self.min_brightness > self.sleep_brightness:
-            k = 1
+            d = 1
         else:
-            k = -1
-        offset = 0.2
-        gap = 0.10
+            d = -1
+        
+        gap = 0.05
+        k = 1/(1-gap)
+        t_dark = d * gap * k * abs(self.min_brightness - self.sleep_brightness)
+        t_light = -1 * gap * k * abs(self.max_brightness - self.min_brightness)
         if event == SUN_EVENT_SUNRISE:
             if x < 0:
                 brightness = scaled_tanh(
                     x,
                     x1=-dark,
-                    x2=-offset*dark,
+                    x2=0,
                     y1=0.05,  # be at 5% of range at x1
                     y2=1-gap,  # be at 95% of range at x2
                     y_min=self.sleep_brightness,
-                    y_max=self.min_brightness*(1+k*gap/2),
+                    y_max=self.min_brightness + t_dark,
                 )
             else:
                 brightness = scaled_tanh(
                     x,
-                    x1=offset*light,
+                    x1=0,
                     x2=+light,
                     y1=gap,  # be at 5% of range at x1
                     y2=0.95,  # be at 95% of range at x2
-                    y_min=self.min_brightness*(1-gap/2),
+                    y_min=self.min_brightness + t_light,
                     y_max=self.max_brightness,
                 )
         elif event == SUN_EVENT_SUNSET:
@@ -283,21 +287,21 @@ class SunLightSettings:
                 brightness = scaled_tanh(
                     x,
                     x1=-light,  # shifted timestamp for the start of sunset
-                    x2=-offset*light,  # shifted timestamp for the end of sunset
+                    x2=0,
                     y1=0.95,  # be at 95% of range at the start of sunset
                     y2=gap,  # be at 5% of range at the end of sunset
-                    y_min=self.min_brightness*(1-gap/2),
+                    y_min=self.min_brightness + t_light,
                     y_max=self.max_brightness,
                 )
             else:
                 brightness = scaled_tanh(
                     x,
-                    x1=offset*dark,  # shifted timestamp for the start of sunset
+                    x1=0,
                     x2=+dark,  # shifted timestamp for the end of sunset
                     y1=1-gap,  # be at 95% of range at the start of sunset
                     y2=0.05,  # be at 5% of range at the end of sunset
                     y_min=self.sleep_brightness,
-                    y_max=self.min_brightness*(1+k*gap/2),
+                    y_max=self.min_brightness + t_dark,
                 )
         else:
             brightness = self.min_brightness
@@ -373,31 +377,35 @@ class SunLightSettings:
         dark = self.brightness_mode_time_dark.total_seconds()
         light = self.brightness_mode_time_light.total_seconds()
         x = dt.timestamp() - ts_event
+
         if self.min_color_temp > self.sleep_color_temp:
-            k = 1
+            d = 1
         else:
-            k = -1
-        offset = 0.2
-        gap = 0.15
+            d = -1
+        
+        gap = 0.05
+        k = 1/(1-gap)
+        t_dark = d * gap * k * abs(self.min_color_temp - self.sleep_color_temp)
+        t_light = -1 * gap * k * abs(self.max_color_temp - self.min_color_temp)
         if event == SUN_EVENT_SUNRISE:
             if x < 0:
                 color_temp = scaled_tanh(
                     x,
                     x1=-dark,
-                    x2=-offset*dark,
+                    x2=0,
                     y1=0.05,  # be at 5% of range at x1
                     y2=1-gap,  # be at 95% of range at x2
                     y_min=self.sleep_color_temp,
-                    y_max=self.min_color_temp*(1+k*gap/2),
+                    y_max=self.min_color_temp + t_dark,
                 )
             else:
                 color_temp = scaled_tanh(
                     x,
-                    x1=offset*light,
+                    x1=0,
                     x2=+light,
                     y1=gap,  # be at 5% of range at x1
                     y2=0.95,  # be at 95% of range at x2
-                    y_min=self.min_color_temp*(1-gap/2),
+                    y_min=self.min_color_temp + t_light,
                     y_max=self.max_color_temp,
                 )
         elif event == SUN_EVENT_SUNSET:
@@ -405,21 +413,21 @@ class SunLightSettings:
                 color_temp = scaled_tanh(
                     x,
                     x1=-light,  # shifted timestamp for the start of sunset
-                    x2=-offset*light,  # shifted timestamp for the end of sunset
+                    x2=0,
                     y1=0.95,  # be at 95% of range at the start of sunset
                     y2=gap,  # be at 5% of range at the end of sunset
-                    y_min=self.min_color_temp*(1-gap/2),
+                    y_min=self.min_color_temp + t_light,
                     y_max=self.max_color_temp,
                 )
             else:
                 color_temp = scaled_tanh(
                     x,
-                    x1=offset*dark,  # shifted timestamp for the start of sunset
+                    x1=0,
                     x2=+dark,  # shifted timestamp for the end of sunset
                     y1=1-gap,  # be at 95% of range at the start of sunset
                     y2=0.05,  # be at 5% of range at the end of sunset
                     y_min=self.sleep_color_temp,
-                    y_max=self.min_color_temp*(1+k*gap/2),
+                    y_max=self.min_color_temp + t_dark,
                 )
         else:
             color_temp = self.min_color_temp
