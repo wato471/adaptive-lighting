@@ -395,11 +395,11 @@ class SunLightSettings:
         else:
             d = -1
         
-        gap = 0.09
+        gap = 0.03
         k = 1/(1-gap)
         t_dark = d * gap * k * abs(self.min_color_temp - self.sleep_color_temp)
         t_light = -1 * gap * k * abs(self.max_color_temp - self.min_color_temp)
-        if event == SUN_EVENT_SUNRISE:
+        if event == SunEvent.SUNRISE:
             if x < 0:
                 color_temp = scaled_tanh(
                     x,
@@ -420,7 +420,7 @@ class SunLightSettings:
                     y_min=self.min_color_temp + t_light,
                     y_max=self.max_color_temp,
                 )
-        elif event == SUN_EVENT_SUNSET:
+        elif event == SunEvent.SUNSET:
             if x < 0:
                 color_temp = scaled_tanh(
                     x,

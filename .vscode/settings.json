@@ -17,7 +17,9 @@
         "no:sugar",
         "core/tests/components/adaptive_lighting"
     ],
+    "python.analysis.autoImportCompletions": true,
     "python.analysis.extraPaths": [
         "${workspaceFolder}/core"
-    ]
+    ],
+    "python.analysis.typeCheckingMode": "standard"
 }
