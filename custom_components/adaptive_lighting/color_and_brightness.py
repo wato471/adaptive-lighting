@@ -268,6 +268,7 @@ class SunLightSettings:
         else:
             d = -1
         
+        H = 3600
         gap = 0.03
         k = 1/(1-gap)
         t_dark = d * gap * k * abs(self.min_brightness - self.sleep_brightness)
@@ -276,18 +277,18 @@ class SunLightSettings:
             if x < 0:
                 brightness = scaled_tanh(
                     x,
-                    x1=x_noon_nadir+dark,
-                    x2=0,
+                    x1=min(x_noon_nadir+H+dark, -H/2),
+                    x2=min(x_noon_nadir+H+dark+H, 0),
                     y1=0.05,  # be at 5% of range at x1
                     y2=1-gap,  # be at 95% of range at x2
                     y_min=self.sleep_brightness,
-                    y_max=self.min_brightness + t_dark,
+                    y_max=self.min_brightness,
                 )
             else:
                 brightness = scaled_tanh(
                     x,
                     x1=0,
-                    x2=x_noon_nadir-light,
+                    x2=light,
                     y1=gap,  # be at 5% of range at x1
                     y2=0.95,  # be at 95% of range at x2
                     y_min=self.min_brightness + t_light,
@@ -297,7 +298,7 @@ class SunLightSettings:
             if x < 0:
                 brightness = scaled_tanh(
                     x,
-                    x1=x_noon_nadir+light,
+                    x1=-light,
                     x2=0,
                     y1=0.95,  # be at 95% of range at the start of sunset
                     y2=gap,  # be at 5% of range at the end of sunset
@@ -307,12 +308,12 @@ class SunLightSettings:
             else:
                 brightness = scaled_tanh(
                     x,
-                    x1=0,
-                    x2=x_noon_nadir-dark,  # shifted timestamp for the end of sunset
+                    x1=max(x_noon_nadir+H-dark-H, 0),
+                    x2=max(x_noon_nadir+H-dark, H/2),
                     y1=1-gap,  # be at 95% of range at the start of sunset
                     y2=0.05,  # be at 5% of range at the end of sunset
                     y_min=self.sleep_brightness,
-                    y_max=self.min_brightness + t_dark,
+                    y_max=self.min_brightness,
                 )
         else:
             msg = "Unsupported sun event"
@@ -398,6 +399,7 @@ class SunLightSettings:
         else:
             d = -1
         
+        H = 3600
         gap = 0.01
         k = 1/(1-gap)
         t_dark = d * gap * k * abs(self.min_color_temp - self.sleep_color_temp)
@@ -406,18 +408,18 @@ class SunLightSettings:
             if x < 0:
                 color_temp = scaled_tanh(
                     x,
-                    x1=x_noon_nadir+dark,
-                    x2=0,
+                    x1=min(x_noon_nadir+H+dark, -H/2),
+                    x2=min(x_noon_nadir+H+dark+H, 0),
                     y1=0.05,  # be at 5% of range at x1
                     y2=1-gap,  # be at 95% of range at x2
                     y_min=self.sleep_color_temp,
-                    y_max=self.min_color_temp + t_dark,
+                    y_max=self.min_color_temp,
                 )
             else:
                 color_temp = scaled_tanh(
                     x,
                     x1=0,
-                    x2=x_noon_nadir-light,
+                    x2=light,
                     y1=gap,  # be at 5% of range at x1
                     y2=0.95,  # be at 95% of range at x2
                     y_min=self.min_color_temp + t_light,
@@ -427,7 +429,7 @@ class SunLightSettings:
             if x < 0:
                 color_temp = scaled_tanh(
                     x,
-                    x1=x_noon_nadir+light,  # shifted timestamp for the start of sunset
+                    x1=-light,
                     x2=0,
                     y1=0.95,  # be at 95% of range at the start of sunset
                     y2=gap,  # be at 5% of range at the end of sunset
@@ -437,12 +439,12 @@ class SunLightSettings:
             else:
                 color_temp = scaled_tanh(
                     x,
-                    x1=0,
-                    x2=x_noon_nadir-dark,  # shifted timestamp for the end of sunset
+                    x1=max(x_noon_nadir+H-dark-H, 0),
+                    x2=max(x_noon_nadir+H-dark, H/2),
                     y1=1-gap,  # be at 95% of range at the start of sunset
                     y2=0.05,  # be at 5% of range at the end of sunset
                     y_min=self.sleep_color_temp,
-                    y_max=self.min_color_temp + t_dark,
+                    y_max=self.min_color_temp,
                 )
         else:
             color_temp = self.min_color_temp
