@@ -258,21 +258,17 @@ class SunLightSettings:
 
     def _brightness_pct_tanh(self, dt: datetime.datetime) -> float:
         event, ts_event, ts_noon_nadir = self.sun.closest_event(dt)
+        
         dark = self.brightness_mode_time_dark.total_seconds()
         light = self.brightness_mode_time_light.total_seconds()
         x = dt.timestamp() - ts_event
         x_noon_nadir = ts_noon_nadir - ts_event
 
-        if self.min_brightness > self.sleep_brightness:
-            d = 1
-        else:
-            d = -1
-        
         H = 3600
         gap = 0.03
         k = 1/(1-gap)
-        t_dark = d * gap * k * abs(self.min_brightness - self.sleep_brightness)
         t_light = -1 * gap * k * abs(self.max_brightness - self.min_brightness)
+
         if event == SunEvent.SUNRISE:
             if x < 0:
                 brightness = scaled_tanh(
@@ -388,22 +384,17 @@ class SunLightSettings:
 
     def color_temp_tanh(self, dt: datetime.datetime) -> int:
         event, ts_event, ts_noon_nadir = self.sun.closest_event(dt)
+
         dark = self.brightness_mode_time_dark.total_seconds()
         light = self.brightness_mode_time_light.total_seconds()
-
         x = dt.timestamp() - ts_event
         x_noon_nadir = ts_noon_nadir - ts_event
 
-        if self.min_color_temp > self.sleep_color_temp:
-            d = 1
-        else:
-            d = -1
-        
         H = 3600
         gap = 0.01
         k = 1/(1-gap)
-        t_dark = d * gap * k * abs(self.min_color_temp - self.sleep_color_temp)
         t_light = -1 * gap * k * abs(self.max_color_temp - self.min_color_temp)
+
         if event == SunEvent.SUNRISE:
             if x < 0:
                 color_temp = scaled_tanh(
