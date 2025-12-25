@@ -258,7 +258,7 @@ class SunLightSettings:
 
     def _brightness_pct_tanh(self, dt: datetime.datetime) -> float:
         event, ts_event, ts_noon_nadir = self.sun.closest_event(dt)
-        
+
         dark = self.brightness_mode_time_dark.total_seconds()
         light = self.brightness_mode_time_light.total_seconds()
         x = dt.timestamp() - ts_event
@@ -396,11 +396,11 @@ class SunLightSettings:
         t_light = -1 * gap * k * abs(self.max_color_temp - self.min_color_temp)
 
         if event == SunEvent.SUNRISE:
-            if x < 0:
+            if x < +H/4:
                 color_temp = scaled_tanh(
                     x,
                     x1=min(x_noon_nadir+1.5*H+dark, -H),
-                    x2=min(x_noon_nadir+1.5*H+dark+H, -H/4),
+                    x2=min(x_noon_nadir+1.5*H+dark+H, +H/4),
                     y1=0.05,  # be at 5% of range at x1
                     y2=1-gap,  # be at 95% of range at x2
                     y_min=self.sleep_color_temp,
@@ -409,7 +409,7 @@ class SunLightSettings:
             else:
                 color_temp = scaled_tanh(
                     x,
-                    x1=0,
+                    x1=max(light/2, H/4),
                     x2=light,
                     y1=gap,  # be at 5% of range at x1
                     y2=0.95,  # be at 95% of range at x2
@@ -417,11 +417,11 @@ class SunLightSettings:
                     y_max=self.max_color_temp,
                 )
         elif event == SunEvent.SUNSET:
-            if x < 0:
+            if x < -H/4:
                 color_temp = scaled_tanh(
                     x,
                     x1=-light,
-                    x2=0,
+                    x2=min(-light/2, -H/4),
                     y1=0.95,  # be at 95% of range at the start of sunset
                     y2=gap,  # be at 5% of range at the end of sunset
                     y_min=self.min_color_temp + t_light,
@@ -430,7 +430,7 @@ class SunLightSettings:
             else:
                 color_temp = scaled_tanh(
                     x,
-                    x1=max(x_noon_nadir+1.5*H-dark-H, H/4),
+                    x1=max(x_noon_nadir+1.5*H-dark-H, -H/4),
                     x2=max(x_noon_nadir+1.5*H-dark, H),
                     y1=1-gap,  # be at 95% of range at the start of sunset
                     y2=0.05,  # be at 5% of range at the end of sunset
