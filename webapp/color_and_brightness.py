@@ -268,10 +268,10 @@ class SunLightSettings:
         gap = 0.03
         k = 1/(1-gap)
         t_light = -1 * gap * k * abs(self.max_brightness - self.min_brightness)
+        t_dark = (1 if self.min_brightness > self.sleep_brightness else -1) * gap * k * abs(self.min_brightness - self.sleep_brightness)
 
         dark_begin = x_noon_nadir+1.5*H-dark
         dark_end = x_noon_nadir+1.5*H+dark
-        t_dark = (1 if self.min_brightness > self.sleep_brightness else -1) * gap * k * abs(self.min_brightness - self.sleep_brightness)
 
         if event == SunEvent.SUNRISE:
             if x < 0:
@@ -402,12 +402,16 @@ class SunLightSettings:
         t_light = -1 * gap * k * abs(self.max_color_temp - self.min_color_temp)
         t_dark = (1 if self.min_color_temp > self.sleep_color_temp else -1) * gap * k * abs(self.min_color_temp - self.sleep_color_temp)
 
+        dark_begin = x_noon_nadir+1.5*H-dark
+        dark_end = x_noon_nadir+1.5*H+dark
+        
         if event == SunEvent.SUNRISE:
             if x < 0:
+                t_dark = (0 if dark_end < -H else 1) * t_dark
                 color_temp = scaled_tanh(
                     x,
-                    x1=min(x_noon_nadir+1.5*H+dark, -H/2),
-                    x2=0,
+                    x1=min(dark_end, -H/2),
+                    x2=min(dark_end+H, 0),
                     y1=0.05,  # be at 5% of range at x1
                     y2=1-gap,  # be at 95% of range at x2
                     y_min=self.sleep_color_temp,
@@ -435,10 +439,11 @@ class SunLightSettings:
                     y_max=self.max_color_temp,
                 )
             else:
+                t_dark = (0 if dark_begin > H else 1) * t_dark
                 color_temp = scaled_tanh(
                     x,
-                    x1=0,
-                    x2=max(x_noon_nadir+1.5*H-dark, H/2),
+                    x1=max(dark_begin-H, 0),
+                    x2=max(dark_begin, H/2),
                     y1=1-gap,  # be at 95% of range at the start of sunset
                     y2=0.05,  # be at 5% of range at the end of sunset
                     y_min=self.sleep_color_temp,
