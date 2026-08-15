@@ -1,7 +1,7 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg?style=for-the-badge)](https://github.com/hacs/integration)
 ![Version](https://img.shields.io/github/v/release/basnijholt/adaptive-lighting?style=for-the-badge)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-130-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-134-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 # 🌞 Adaptive Lighting: Enhance Your Home's Atmosphere with Smart, Sun-Synchronized Lighting 🌙
@@ -409,6 +409,11 @@ Expose only the group (not individual bulbs) in Home Assistant Dashboards and ex
 
 > :warning: **If you control lights individually, `manual_control` cannot behave correctly! If you need to control lights individually as well, use a [Home Assistant Light Group](https://www.home-assistant.io/integrations/group/).**
 
+When mixing group types, avoid nesting: do not add integration-level groups (e.g., Zigbee2MQTT groups) to a [Home Assistant Light Group](https://www.home-assistant.io/integrations/group/) that is managed by Adaptive Lighting, and do not nest Home Assistant Light Groups inside each other.
+Adaptive Lighting cannot expand an integration-level group into its member lights, and nested groups make it unpredictable which entity Adaptive Lighting tracks and adapts, which can prevent lights from being adapted at all (see [#1378](https://github.com/basnijholt/adaptive-lighting/issues/1378)).
+Instead, add the individual light entities or a single Zigbee group directly to the Adaptive Lighting configuration.
+Also note that bulbs turned on via a Zigbee group broadcast may briefly flash their last (cached) brightness and color before the adapted values arrive; this happens inside the bulbs and cannot be prevented by Home Assistant or Adaptive Lighting.
+
 #### :rainbow: Light Colors Not Matching
 
 Bulbs from different manufacturers or models may have varying color temperature specifications. For instance, if you have two Adaptive Lighting configurations—one with only Philips Hue White Ambiance bulbs and another with a mix of Philips Hue White Ambiance and Sengled bulbs—the Philips Hue bulbs may appear to have different color temperatures despite having identical settings.
@@ -657,6 +662,12 @@ Notice the values of `brightness_mode_time_light` and `brightness_mode_time_dark
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/lenucksi"><img src="https://avatars.githubusercontent.com/u/2451899?v=4?s=100" width="100px;" alt="lenucksi"/><br /><sub><b>lenucksi</b></sub></a><br /><a href="https://github.com/basnijholt/adaptive-lighting/commits?author=lenucksi" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://gitlab.com/edgimar"><img src="https://avatars.githubusercontent.com/u/393850?v=4?s=100" width="100px;" alt="edgimar"/><br /><sub><b>edgimar</b></sub></a><br /><a href="https://github.com/basnijholt/adaptive-lighting/commits?author=edgimar" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/andrei-lazarov"><img src="https://avatars.githubusercontent.com/u/51081857?v=4?s=100" width="100px;" alt="Andrei LAZAROV"/><br /><sub><b>Andrei LAZAROV</b></sub></a><br /><a href="https://github.com/basnijholt/adaptive-lighting/commits?author=andrei-lazarov" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/ademuri"><img src="https://avatars.githubusercontent.com/u/3051618?v=4?s=100" width="100px;" alt="Adam DeMuri"/><br /><sub><b>Adam DeMuri</b></sub></a><br /><a href="https://github.com/basnijholt/adaptive-lighting/commits?author=ademuri" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/NatanDosAnjos"><img src="https://avatars.githubusercontent.com/u/45629905?v=4?s=100" width="100px;" alt="Natanael"/><br /><sub><b>Natanael</b></sub></a><br /><a href="#translation-NatanDosAnjos" title="Translation">🌍</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Yllelder"><img src="https://avatars.githubusercontent.com/u/6941502?v=4?s=100" width="100px;" alt="Yllelder Bamir"/><br /><sub><b>Yllelder Bamir</b></sub></a><br /><a href="#translation-Yllelder" title="Translation">🌍</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Esspel"><img src="https://avatars.githubusercontent.com/u/47383506?v=4?s=100" width="100px;" alt="Esspel"/><br /><sub><b>Esspel</b></sub></a><br /><a href="#translation-Esspel" title="Translation">🌍</a></td>
     </tr>
   </tbody>
   <tfoot>
